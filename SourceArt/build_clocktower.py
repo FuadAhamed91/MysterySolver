@@ -1,5 +1,5 @@
 """
-The 3:15 Escapement - procedural asset generator.
+The Spooky Crime Scene - procedural asset generator.
 
 Run headless:
   blender --background --factory-startup --python SourceArt/build_clocktower.py -- <unity_project_root>

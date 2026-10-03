@@ -50,3 +50,10 @@ crashlytics-build.properties
 # OS
 .DS_Store
 Thumbs.db
+
+# Python caches from the Blender generators
+__pycache__/
+
+# Vercel CLI link + env files (the OIDC token must never be committed)
+.vercel/
+.env*

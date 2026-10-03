@@ -1,0 +1,164 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa9506f8b8c580c448622cdfc193780a, type: 3}
+  m_Name: Case1_Clocktower
+  m_EditorClassIdentifier: Assembly-CSharp::CaseDefinition
+  CaseId: clocktower
+  Number: 1
+  Title: The 3:15 Escapement
+  Location: "The Clocktower Gear Room  \xB7  3:15 AM"
+  SceneName: Clocktower
+  MenuBlurb: Inventor Arthur Vance lies beneath the fallen pendulum of the town clock.
+    The great clock stopped at 3:15. Was it an accident?
+  Intro: 'The great clock of Ashgrove stopped at 3:15 this morning, and half the
+    town woke to the silence. Inventor Arthur Vance was found in the gear room beneath
+    the fallen pendulum.
+
+
+    The constable calls it an accident. You don''t. Search
+    the tower, question anyone lurking in the shadows, and name the killer before
+    the trail goes cold.'
+  Clues:
+  - Id: CLUE_PENDULUM_PIN
+    Riddle: 'I held the heart that kept the town''s time, till a shaking hand pulled
+      me free. You can''t lift me: look where the brass rod meets the big wheel.'
+    Tip: Not everything worth seeing can be carried. Go to the fallen pendulum and
+      look where the rod meets the great wheel.
+  - Id: CLUE_CHISEL
+    Riddle: Where the moon spills silver on the boards, a rusty tooth lies forgotten.
+      Look down in the light from the big clock face.
+    Tip: Moonlight shows more than it hides. Check the floor inside the glow from
+      the clock face, and look down.
+  - Id: CLUE_LOGBOOK
+    Riddle: Where an old man warmed his hands by the glass, his words wait for anyone
+      who passes. Follow the little orange glow.
+    Tip: The night watchman sat by a window to keep warm. Follow the little orange
+      glow.
+  - Id: CLUE_PRESCRIPTION
+    Riddle: Six little rooms sit on the desk. Five hold rolled-up scrolls, and one
+      holds a doctor's folded promise that somebody broke.
+    Tip: Vance kept his papers in pigeonholes. Not every one of them is empty.
+  - Id: CLUE_TEACUP
+    Riddle: Fallen but not broken, cold but once warm. I'm on the floor by the desk,
+      and I've a ring on my plate that isn't mine.
+    Tip: Someone knocked something off that desk tonight. Look at the floor beside
+      it.
+  - Id: CLUE_LETTER
+    Riddle: Sealed in red and full of family spite, I lie on the slope where he drew
+      at night. Left side, detective.
+    Tip: There's a letter on the desk with a red seal. Family business, and nasty
+      business.
+  - Id: CLUE_POCKET_WATCH
+    Riddle: I've got hands but I can't clap, and someone told me to stop. I'm lying
+      on the sloped desk, near the edge, waitin' to be picked up.
+    Tip: His pocket watch is on the sloping desk, near the front edge. A watchmaker
+      doesn't stop a watch for nothing.
+  - Id: CLUE_DESK_LAMP
+    Riddle: I've a neck like a swan and a hat like a bell. I'm bowing my head to
+      show you what I saw. Look on the desk's back shelf.
+    Tip: Look at the brass lamp on the back shelf of the desk, and at what it's pointing
+      at.
+  - Id: CLUE_APOTHECARY_VIAL
+    Riddle: Small and corked and nearly dry, I stand on the shelf beside the bright
+      one. What I held put a man to sleep for good.
+    Tip: A small corked bottle stands on the desk's back shelf beside the lamp. Read
+      the label.
+  CluesRequiredToAccuse: 5
+  MaxAccusations: 3
+  Questions:
+  - Prompt: Who poisoned Arthur Vance?
+    Options:
+    - Dr. Elias Haze
+    - Margaret Vance
+    - Tobias Crane
+    - 'No one: an accident'
+    CorrectIndex: 0
+  - Prompt: When did the poison take hold?
+    Options:
+    - 2:40 AM
+    - 3:03 AM
+    - 3:10 AM
+    - 3:15 AM
+    CorrectIndex: 1
+  - Prompt: How was he killed?
+    Options:
+    - Aconite in his tonic
+    - Crushed by the pendulum
+    - Gears sabotaged to fall
+    - Poisoned wax seal
+    CorrectIndex: 0
+  - Prompt: Who stopped the great clock at 3:15?
+    Options:
+    - Arthur Vance himself
+    - Dr. Elias Haze
+    - Tobias Crane
+    - Margaret Vance
+    CorrectIndex: 0
+  SolutionText: 'Dr. Elias Haze came up the tower at 2:40 with Vance''s evening tonic,
+    and he had altered the dose from 10 drops to 40. The bottle was <b>aconite</b>,
+    labelled in his own hand. They shared tea, then Haze took his cup and fled at
+    3:10.
+
+
+    At <b>3:03</b> Vance felt his hands go numb and understood. A horologist
+    to the last, he stopped his watch to mark the moment, then turned his lamp onto
+    a note. With minutes left he drew the pendulum''s pin himself. The great clock
+    stopped at <b>3:15</b>, waking the whole town before Haze could return to tidy
+    up.
+
+
+    Margaret''s threat was only angry words: she was at the gala until
+    3:30. Crane''s chisel marks were months old, and he had left at 11:02.'
+  FailLine: Your last accusation falls apart. By dawn, Dr. Haze is on the 6:15 train
+    to the coast.
+  TopRankName: Master of the Escapement
+  WrenCallOut: Psst... over here, detective. By the window.
+  WrenIntro: Easy. I'm not here to hurt you. I watch this tower for people who pay
+    well, and tonight nobody paid me to look away. So I looked.
+  WrenWhoAmI: Call me Wren. Names are expensive, so that one's a gift. I keep an
+    eye on Vance's work for a client who wanted his designs. Dead men don't sell
+    blueprints, so I want his killer caught as much as you do.
+  WrenSuspectsLine: Three people had reason to want Vance gone. Pick one.
+  Suspects:
+  - Name: Dr. Elias Haze
+    Role: the physician
+    Intel: Town doctor. Treats half the council, and owes the bank twice what he
+      earns. Vance found out Haze was watering down patients' medicine and pocketing
+      the difference. He was going to the constable on Monday.
+  - Name: Margaret Vance
+    Role: the niece
+    Intel: Hot temper, empty purse. She inherits if the will stands. But she spent
+      tonight dancing at the Founders' Gala. Half the town saw her there, and the
+      watchman writes everything down.
+  - Name: Tobias Crane
+    Role: the rival
+    Intel: 'Vance''s old apprentice. Swears Vance stole his escapement design. Loud,
+      petty, and sloppy with his tools: he leaves them everywhere and never cleans
+      them.'
+  DeductionTips:
+  - 'You''ve got every piece. Now check alibis: two of your suspects were nowhere
+    near this room when it mattered. The watchman''s book says who.'
+  - The poison took hold before the clock stopped. A watchmaker would mark that moment
+    on the thing he trusts most.
+  - Ask who was in this room after Haze ran down the stairs at 3:10. Only one man.
+    And he was dying, but not finished.
+  WrenSolved: Nicely done, detective. Haze will run, or hang. Either way my client
+    will be pleased. You never saw me.
+  FinchCallOut: Oi! Detective! Behind the gears. Quick, before the coppers see me!
+  FinchIntro: Name's Finch. I run messages for Wren, and for anyone with a coin.
+    But for you, riddles are free! Wren charges for tips. I don't. Mine are just
+    harder to crack.
+  FinchWitness: I was hidin' on the stair. Somebody came down past me in a proper
+    hurry. Didn't see a face, but they'd no hat, and their bag clinked like little
+    glass bottles. Then BONG! The whole tower shook and the clock stopped.
+  FinchSolved: You did it! I'll run the news to every street in town. First edition,
+    no charge!

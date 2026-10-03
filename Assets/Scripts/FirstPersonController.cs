@@ -71,6 +71,12 @@ public class FirstPersonController : MonoBehaviour
     {
         if (moveAction == null)
             return;
+
+        // Browsers (and the Editor) release the pointer on Esc and only grant it back on a click.
+        if (wantCursorLocked && Cursor.lockState != CursorLockMode.Locked &&
+            Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            SetCursorLocked(true);
+
         UpdateMovement();
         if (InputActive)
             UpdateLook();
@@ -99,6 +105,8 @@ public class FirstPersonController : MonoBehaviour
     {
         Vector2 look = lookAction.ReadValue<Vector2>();
         bool fromGamepad = lookAction.activeControl != null && lookAction.activeControl.device is Gamepad;
+        if (!fromGamepad && Cursor.lockState != CursorLockMode.Locked)
+            return; // a free cursor (before the first click in a browser) shouldn't spin the camera
         Vector2 delta = fromGamepad ? look * (GamepadLookSpeed * Time.deltaTime) : look * MouseSensitivity;
 
         transform.Rotate(0f, delta.x, 0f, Space.Self);

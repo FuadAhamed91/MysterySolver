@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Spooky Crime Scene: a first-person murder mystery. Three cases, three accusations each, no second chances.">
+    <title>{{{ PRODUCT_NAME }}}</title>
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #06080c; }
+      body { font-family: Georgia, "Times New Roman", serif; color: #e8dcc0; }
+      #unity-canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; background: #06080c; outline: none; }
+      #loader {
+        position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 18px; padding: 24px; text-align: center;
+        background: radial-gradient(ellipse at 50% 35%, #1b1611 0%, #06080c 70%);
+        transition: opacity 0.8s ease;
+      }
+      #loader.done { opacity: 0; pointer-events: none; }
+      .kicker { letter-spacing: 0.45em; font-size: 13px; opacity: 0.55; }
+      h1 { margin: 0; font-weight: normal; letter-spacing: 0.18em; color: #ffc774; font-size: clamp(26px, 5.5vw, 68px); }
+      #bar { width: min(440px, 72vw); height: 5px; background: #221d18; border-radius: 3px; overflow: hidden; margin-top: 10px; }
+      #fill { width: 0%; height: 100%; background: linear-gradient(90deg, #a8742c, #ffc774); transition: width 0.25s ease; }
+      #status { font-style: italic; opacity: 0.7; font-size: 15px; min-height: 1.2em; }
+      .hint { font-size: 13px; opacity: 0.4; letter-spacing: 0.05em; }
+      #notice { display: none; font-size: 14px; color: #ff9f86; max-width: 520px; }
+      #error { display: none; max-width: 560px; font-size: 15px; color: #ffb4a3; }
+    </style>
+  </head>
+  <body>
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="loader">
+      <div class="kicker">A FIRST-PERSON MYSTERY</div>
+      <h1>THE SPOOKY CRIME SCENE</h1>
+      <div id="bar"><div id="fill"></div></div>
+      <div id="status">Opening the case files&hellip;</div>
+      <div id="notice">This game needs a keyboard and mouse. On a phone or tablet it will load, but you won't be able to play.</div>
+      <div id="error"></div>
+      <div class="hint">Best with keyboard, mouse and headphones</div>
+    </div>
+    <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+    <script>
+      var canvas = document.getElementById("unity-canvas");
+      var loader = document.getElementById("loader");
+      var fill = document.getElementById("fill");
+      var statusText = document.getElementById("status");
+      var lines = ["Opening the case files…", "Dusting for fingerprints…", "Lighting the lamps…", "Questioning the witnesses…"];
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        document.getElementById("notice").style.display = "block";
+      }
+
+      createUnityInstance(canvas, {
+        arguments: [],
+        dataUrl: "Build/{{{ DATA_FILENAME }}}",
+        frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
+#if USE_THREADS
+        workerUrl: "Build/{{{ WORKER_FILENAME }}}",
+#endif
+#if USE_WASM
+        codeUrl: "Build/{{{ CODE_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+        symbolsUrl: "Build/{{{ SYMBOLS_FILENAME }}}",
+#endif
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+        productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+        productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+        // Render at one pixel per CSS pixel: keeps high-DPI laptops on integrated graphics smooth.
+        devicePixelRatio: 1,
+      }, function (progress) {
+        fill.style.width = Math.round(progress * 100) + "%";
+        statusText.textContent = lines[Math.min(lines.length - 1, Math.floor(progress * lines.length))];
+      }).then(function () {
+        loader.classList.add("done");
+        setTimeout(function () { loader.remove(); }, 900);
+        canvas.focus();
+      }).catch(function (message) {
+        statusText.textContent = "";
+        var error = document.getElementById("error");
+        error.style.display = "block";
+        error.textContent = "The case files wouldn't open: " + message +
+          " Try a recent desktop version of Chrome, Edge or Firefox with hardware acceleration turned on.";
+      });
+    </script>
+  </body>
+</html>

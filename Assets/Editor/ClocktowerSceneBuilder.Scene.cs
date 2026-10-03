@@ -11,8 +11,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Assembles the playable clocktower scene. Unity layout (FBX import maps Blender (x,y,z) -> (-x,z,-y)):
+/// Case 1 scene: the clocktower. Unity layout (FBX import maps Blender (x,y,z) -> (-x,z,-y)):
 /// the clock-face wall is north at -Z, the study / drafting desk is against the south wall at +Z.
+/// Shared case-scene pieces (player rig, HUD, informants, soundscape) live in ClocktowerSceneBuilder.Cases.cs.
 /// </summary>
 public static partial class ClocktowerSceneBuilder
 {
@@ -22,7 +23,7 @@ public static partial class ClocktowerSceneBuilder
 
     static readonly Vector3 DeskPosition = new Vector3(0f, 0f, 4.9f);
 
-    [MenuItem("Tools/The 3:15 Escapement/2. Build Scene")]
+    [MenuItem("Tools/The Spooky Crime Scene/2b. Build Clocktower Scene Only")]
     static void BuildSceneMenu()
     {
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
@@ -164,57 +165,10 @@ public static partial class ClocktowerSceneBuilder
 
         AddCrimeSceneTape(env.transform);
 
-        // ---------------------------------------------------------------- player rig
-        var player = new GameObject("Player");
-        player.transform.SetPositionAndRotation(new Vector3(0f, 1f, 0f), Quaternion.Euler(0f, 180f, 0f));
-        var cc = player.AddComponent<CharacterController>();
-        cc.height = 1.8f;
-        cc.radius = 0.35f;
-        cc.center = new Vector3(0f, -0.1f, 0f); // capsule bottom rests on the floor at y = 0
-        cc.stepOffset = 0.3f;
-        cc.skinWidth = 0.04f;
-        var playerInput = player.AddComponent<PlayerInput>();
-        playerInput.actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(InputActionsPath);
-        playerInput.defaultActionMap = "Player";
-        playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
-        var fpc = player.AddComponent<FirstPersonController>();
-
-        var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
-        camGo.transform.SetParent(player.transform, false);
-        camGo.transform.localPosition = new Vector3(0f, 0.6f, 0f); // world eye height 1.6 m
-        var cam = camGo.AddComponent<Camera>();
-        cam.nearClipPlane = 0.02f;
-        cam.farClipPlane = 60f;
-        cam.fieldOfView = 70f;
-        cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = Hex("070A10");
-        camGo.AddComponent<AudioListener>();
-        var camData = cam.GetUniversalAdditionalCameraData();
-        camData.renderPostProcessing = true;
-        camData.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
-        camData.antialiasingQuality = AntialiasingQuality.High;
-        camData.dithering = true; // removes banding in the dark light falloff
-        fpc.CameraPivot = camGo.transform;
-
-        var anchor = new GameObject("InspectionAnchor").transform;
-        anchor.SetParent(camGo.transform, false);
-        anchor.localPosition = new Vector3(0f, -0.08f, 0.45f);
-
-        var inspectLight = new GameObject("InspectionFillLight").AddComponent<Light>();
-        inspectLight.transform.SetParent(camGo.transform, false);
-        inspectLight.transform.localPosition = new Vector3(0.1f, 0.15f, 0.15f);
-        inspectLight.type = LightType.Point;
-        inspectLight.color = Hex("FFE2B8");
-        inspectLight.intensity = 0.3f;
-        inspectLight.range = 1.4f;
-        inspectLight.shadows = LightShadows.None;
-
-        var raycaster = camGo.AddComponent<InspectionRaycaster>();
-        raycaster.InspectionAnchor = anchor;
-        raycaster.Player = fpc;
-        raycaster.PlayerInput = playerInput;
-        raycaster.InspectionLight = inspectLight;
-        raycaster.InteractRange = 3f;
+        // ---------------------------------------------------------------- player rig, HUD, case file
+        var catalog = CaseLibrary.EnsureAssets();
+        var rig = BuildCaseRig(catalog.Cases[0], catalog, new Vector3(0f, 1f, 0f), 180f, 60f, Hex("070A10"));
+        var cam = rig.Camera;
 
         // ---------------------------------------------------------------- lighting
         var lighting = new GameObject("Lighting");
@@ -256,46 +210,13 @@ public static partial class ClocktowerSceneBuilder
         RenderSettings.fogColor = Hex("0A0E15");
         RenderSettings.fogDensity = 0.035f;
 
-        var volumeGo = new GameObject("Global Volume");
-        volumeGo.transform.SetParent(lighting.transform, false);
-        var volume = volumeGo.AddComponent<Volume>();
-        volume.isGlobal = true;
-        volume.priority = 1f;
-        volume.sharedProfile = CreateVolumeProfile();
+        var board = rig.Board;
 
-        // ---------------------------------------------------------------- UI + case manager
-        var ui = BuildUI(out var crosshair, out var prompt, out var inspectPanel, out var inspectTitle,
-                         out var inspectDesc, out var tracker, out var deductionPanel, out var deductionTitle, out var deductionBody,
-                         out var deductionHint);
-        raycaster.Crosshair = crosshair;
-        raycaster.PromptText = prompt;
-        raycaster.InspectionPanel = inspectPanel;
-        raycaster.InspectTitleText = inspectTitle;
-        raycaster.InspectDescriptionText = inspectDesc;
-
-        var manager = new GameObject("CaseDeductionManager").AddComponent<CaseDeductionManager>();
-        manager.Player = fpc;
-        manager.PlayerInput = playerInput;
-        manager.TrackerText = tracker;
-        manager.DeductionPanel = deductionPanel;
-        manager.DeductionTitleText = deductionTitle;
-        manager.DeductionBodyText = deductionBody;
-        manager.DeductionHintText = deductionHint;
-
-        var board = BuildCaseBoard(ui.transform);
-        board.Case = manager;
-        board.Player = fpc;
-        board.PlayerInput = playerInput;
-        board.Raycaster = raycaster;
-
-        // ---------------------------------------------------------------- the informant
-        var dialogue = BuildDialogueUI(ui.transform);
-        dialogue.Player = fpc;
-        dialogue.PlayerInput = playerInput;
-        var wren = BuildInformant(cam.transform);
-        wren.Dialogue = dialogue;
-        var finch = BuildFinch(cam.transform);
-        finch.Dialogue = dialogue;
+        // ---------------------------------------------------------------- the informants
+        var wren = BuildInformant(cam.transform, new Vector3(-4.6f, 0f, 1.3f));
+        wren.Dialogue = rig.Dialogue;
+        var finch = BuildFinch(cam.transform, new Vector3(3.6f, 0f, -3.35f));
+        finch.Dialogue = rig.Dialogue;
 
         // ---------------------------------------------------------------- corkboard in the study
         var cork = InstantiateModel("Prop_CaseBoard", study.transform, new Vector3(1.7f, 0f, 3.9f),
@@ -306,27 +227,16 @@ public static partial class ClocktowerSceneBuilder
         cork.AddComponent<CaseBoardStation>().Board = board;
         PointLight(study.transform, "CaseBoard_Light", new Vector3(1.45f, 2.1f, 3.4f), "FFD9A0", 1.1f, 2.4f);
 
-        // ---------------------------------------------------------------- scary soundscape
-        var sound = new GameObject("ScarySoundscape");
-        var soundscape = sound.AddComponent<ScarySoundscape>();
-        soundscape.Listener = cam.transform;
-        var crimeScene = new GameObject("CrimeScene_HeartbeatFocus").transform;
-        crimeScene.SetParent(sound.transform, false);
-        crimeScene.position = new Vector3(-1.3f, 0.6f, -0.05f); // the pendulum bob
-        soundscape.CrimeScene = crimeScene;
-        var reverb = sound.AddComponent<AudioReverbZone>(); // stone-tower echo
-        reverb.reverbPreset = AudioReverbPreset.StoneCorridor;
-        reverb.minDistance = 7f;
-        reverb.maxDistance = 14f;
-
-        var eventSystem = new GameObject("EventSystem", typeof(EventSystem));
-        eventSystem.AddComponent<InputSystemUIInputModule>().AssignDefaultActions();
+        // ---------------------------------------------------------------- scary soundscape (stone-tower echo)
+        BuildSoundscape(ScarySoundscape.SoundTheme.Clocktower, rig, new Vector3(-1.3f, 0.6f, -0.05f), // the pendulum bob
+                        AudioReverbPreset.StoneCorridor, Vector3.zero, new Vector3(10f, 2f, 10f), 4.6f);
 
         // ---------------------------------------------------------------- save
+        DisableShadowsOnSeeThrough(env);
         EditorSceneManager.SaveScene(scene, ScenePath);
-        AddSceneToBuildFirst(ScenePath);
+        EnsureBuildScenes();
         AssetDatabase.SaveAssets();
-        return $"Built {ScenePath}: evidence={clues.GetComponentsInChildren<InspectableItem>().Length} ui={ui.name}";
+        return $"Built {ScenePath}: evidence={clues.GetComponentsInChildren<InspectableItem>().Length} ui={rig.Ui.name}";
     }
 
     // ==================================================================== helpers
@@ -375,19 +285,20 @@ public static partial class ClocktowerSceneBuilder
         return light;
     }
 
-    static InformantNPC BuildInformant(Transform playerCamera)
+    static InformantNPC BuildInformant(Transform playerCamera, Vector3 pos)
     {
-        // Lurking beside the east (-X) lancet window. Cold rim light so Wren reads as a silhouette first.
-        var npc = BuildNPC<InformantNPC>("NPC_Informant", "Informant_Wren", new Vector3(-4.6f, 0f, 1.3f), 1.46f, 1.8f,
+        // Cold rim light from behind so Wren reads as a silhouette first.
+        var npc = BuildNPC<InformantNPC>("NPC_Informant", "Informant_Wren", pos, 1.46f, 1.8f,
             new[] { "Wren_Head", "Wren_Scarf", "Wren_Fedora", "Wren_HatBand" }, "Wren_Coat", playerCamera);
-        PointLight(npc.transform, "Wren_RimLight", new Vector3(-5.2f, 2.1f, 0.9f), "9FB8FF", 1.4f, 2.6f);
+        Vector3 behind = pos - npc.transform.forward * 0.7f + Vector3.up * 2.1f;
+        PointLight(npc.transform, "Wren_RimLight", behind, "9FB8FF", 1.4f, 2.6f);
         return npc;
     }
 
-    static RiddlerNPC BuildFinch(Transform playerCamera)
+    static RiddlerNPC BuildFinch(Transform playerCamera, Vector3 pos)
     {
-        // Hiding behind the gear frame on the west (+X) side, lit by the candle in Finch's hand.
-        var npc = BuildNPC<RiddlerNPC>("NPC_Finch", "Messenger_Finch", new Vector3(3.6f, 0f, -3.35f), 1.24f, 1.5f,
+        // Lit by the candle in Finch's hand.
+        var npc = BuildNPC<RiddlerNPC>("NPC_Finch", "Messenger_Finch", pos, 1.24f, 1.5f,
             new[] { "Finch_Head", "Finch_Cap" }, "Finch_Shirt", playerCamera);
 
         // Candle flame: a small unlit glowing teardrop on the candle, plus the light it casts.
@@ -572,7 +483,7 @@ public static partial class ClocktowerSceneBuilder
 
     static GameObject InstantiateModel(string model, Transform parent, Vector3 pos, Quaternion rot)
     {
-        var asset = AssetDatabase.LoadAssetAtPath<GameObject>($"{ModelDir}/{model}.fbx");
+        var asset = AssetDatabase.LoadAssetAtPath<GameObject>(ModelPath(model));
         var go = (GameObject)PrefabUtility.InstantiatePrefab(asset);
         go.transform.SetParent(parent, false);
         go.transform.SetPositionAndRotation(pos, rot);
@@ -581,7 +492,7 @@ public static partial class ClocktowerSceneBuilder
 
     static GameObject CreateClue(string model, Transform parent, Vector3 pos, Quaternion rot,
                                  string title, string description, string clueId, string notebookNote,
-                                 Vector3 displayOffset, Vector3 displayEuler)
+                                 Vector3 displayOffset, Vector3 displayEuler, bool canPickUp = true, float minSize = 0.12f)
     {
         var go = InstantiateModel(model, parent, pos, rot);
 
@@ -601,7 +512,6 @@ public static partial class ClocktowerSceneBuilder
                 else b.Encapsulate(p);
             }
         }
-        const float minSize = 0.12f;
         var box = go.AddComponent<BoxCollider>();
         box.center = b.center;
         box.size = Vector3.Max(b.size, new Vector3(minSize, minSize * 0.5f, minSize));
@@ -613,6 +523,7 @@ public static partial class ClocktowerSceneBuilder
         item.NotebookNote = notebookNote;
         item.DisplayOffset = displayOffset;
         item.DisplayEulerRotation = displayEuler;
+        item.CanPickUp = canPickUp;
         return go;
     }
 
@@ -634,7 +545,9 @@ public static partial class ClocktowerSceneBuilder
 
     static VolumeProfile CreateVolumeProfile()
     {
-        AssetDatabase.DeleteAsset(VolumeProfilePath);
+        var existing = AssetDatabase.LoadAssetAtPath<VolumeProfile>(VolumeProfilePath);
+        if (existing != null)
+            return existing; // shared by every case scene
         var profile = ScriptableObject.CreateInstance<VolumeProfile>();
         AssetDatabase.CreateAsset(profile, VolumeProfilePath);
 
@@ -659,13 +572,6 @@ public static partial class ClocktowerSceneBuilder
         return profile;
     }
 
-    static void AddSceneToBuildFirst(string path)
-    {
-        var list = new System.Collections.Generic.List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-        list.RemoveAll(s => s.path == path);
-        list.Insert(0, new EditorBuildSettingsScene(path, true));
-        EditorBuildSettings.scenes = list.ToArray();
-    }
 
     static Color Hex(string hex)
     {
@@ -690,7 +596,7 @@ public static partial class ClocktowerSceneBuilder
         var scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
-        scaler.matchWidthOrHeight = 0.5f;
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand; // never clip in 4:3 or narrow windows
         canvasGo.AddComponent<GraphicRaycaster>(); // required for mouse clicks on the Case Board / dialogue buttons
         var root = canvasGo.transform;
 
@@ -707,7 +613,7 @@ public static partial class ClocktowerSceneBuilder
                        "Evidence 0/9  ·  [TAB] Case Board", 30f, Gold, TextAlignmentOptions.Center);
 
         var titleCard = Text("GameTitle", root, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(32f, -28f),
-                             new Vector2(600f, 40f), "THE 3:15 ESCAPEMENT", 22f, new Color(1f, 1f, 1f, 0.45f), TextAlignmentOptions.TopLeft);
+                             new Vector2(600f, 40f), "THE SPOOKY CRIME SCENE", 22f, new Color(1f, 1f, 1f, 0.45f), TextAlignmentOptions.TopLeft);
         titleCard.characterSpacing = 8f;
         Text("ControlsHint", root, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(32f, 24f), new Vector2(900f, 32f),
              "WASD Move   ·   Mouse Look   ·   Shift Sprint   ·   E Inspect   ·   Tab Case Board", 18f, new Color(1f, 1f, 1f, 0.4f),
@@ -754,7 +660,8 @@ public static partial class ClocktowerSceneBuilder
         var card = Panel("Card", panel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero,
                          new Vector2(1560f, 900f), new Color(0.2f, 0.15f, 0.1f, 0.98f));
         var title = Text("Title", card.transform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -38f),
-                         new Vector2(-80f, 60f), "CASE BOARD: WHO KILLED ARTHUR VANCE?", 42f, Gold, TextAlignmentOptions.Top);
+                         new Vector2(-80f, 60f), "CASE BOARD", 42f, Gold, TextAlignmentOptions.Top);
+        board.TitleText = title;
         title.fontStyle = FontStyles.Bold;
         title.characterSpacing = 4f;
         Panel("Divider", card.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -96f), new Vector2(1440f, 2f),
@@ -802,6 +709,8 @@ public static partial class ClocktowerSceneBuilder
         board.FeedbackText.rectTransform.pivot = new Vector2(0f, 1f);
         Text("CloseHint", card.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 26f), new Vector2(900f, 28f),
              "Tab / Esc: close board", 18f, new Color(1f, 1f, 1f, 0.5f), TextAlignmentOptions.Bottom);
+        board.LeaveButton = MakeButton("LeaveCaseButton", card.transform, new Vector2(30f, -846f), new Vector2(270f, 40f),
+                                       "Leave case (menu)", 18f, out _, new Color(0.18f, 0.15f, 0.13f, 1f));
 
         panel.SetActive(false);
         return board;

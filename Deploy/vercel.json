@@ -1,0 +1,29 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/Build/(.*).br",
+      "headers": [
+        { "key": "Content-Encoding", "value": "br" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/Build/(.*).js.br",
+      "headers": [{ "key": "Content-Type", "value": "application/javascript" }]
+    },
+    {
+      "source": "/Build/(.*).wasm.br",
+      "headers": [{ "key": "Content-Type", "value": "application/wasm" }]
+    },
+    {
+      "source": "/Build/(.*).data.br",
+      "headers": [{ "key": "Content-Type", "value": "application/octet-stream" }]
+    },
+    {
+      "source": "/Build/(.*).symbols.json.br",
+      "headers": [{ "key": "Content-Type", "value": "application/octet-stream" }]
+    }
+  ]
+}

@@ -101,6 +101,12 @@ public class InspectionRaycaster : MonoBehaviour
         }
 
         currentTarget = null;
+        if (Cursor.lockState != CursorLockMode.Locked)
+        {
+            SetPrompt("Click to look around"); // browsers need a click before they hand over the mouse
+            return;
+        }
+
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         if (Physics.Raycast(ray, out RaycastHit hit, InteractRange, InteractMask, QueryTriggerInteraction.Ignore))
             currentTarget = hit.collider.GetComponentInParent<IInteractable>();

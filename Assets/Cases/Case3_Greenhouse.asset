@@ -1,0 +1,167 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa9506f8b8c580c448622cdfc193780a, type: 3}
+  m_Name: Case3_Greenhouse
+  m_EditorClassIdentifier: Assembly-CSharp::CaseDefinition
+  CaseId: greenhouse
+  Number: 3
+  Title: The Nightshade Conservatory
+  Location: "Thornfield Glasshouse  \xB7  The Midnight Bloom"
+  SceneName: Greenhouse
+  MenuBlurb: A famous botanist lies dead in her locked glasshouse, beside a rare
+    orchid that blooms only at midnight.
+  Intro: 'Lady Agatha Thorne locked herself in her glasshouse last night to watch
+    her Moonflower bloom: an orchid that opens only at midnight and has never before
+    been seen in England.
+
+
+    At dawn the gardener broke the lock and found her
+    dead in her chair. The doctor says her heart simply stopped. But the door was
+    locked from the inside, the key was in her pocket, and somebody walked through
+    the mud.'
+  Clues:
+  - Id: GH_VENT_CRANK
+    Riddle: Turn my wheel and the roof breathes in. Someone turned me after midnight
+      with flower dust on their skin. Find me by the ladder.
+    Tip: Look at the crank wheel on the wall by the ladder. That's how a locked glasshouse
+      gets unlocked from the inside. Check the handle.
+  - Id: GH_FOOTPRINTS
+    Riddle: We walk without feet from the chair to the climb, small and muddy, left
+      after midnight. Look down on the path.
+    Tip: Look at the gravel between Agatha's chair and the ladder. Someone left footprints.
+      Check their size.
+  - Id: GH_POISON
+    Riddle: Brown and corked with a warning in black, I hide on the low shelf where
+      the spiders sleep. Under the bench on your right as you come in.
+    Tip: Get down low and look under the potting bench on your right as you enter.
+      Something poisonous is hidden on the bottom shelf.
+  - Id: GH_GLOVES
+    Riddle: Two empty hands lie by the purple light. They held the poison while she
+      held her flower that night.
+    Tip: Agatha's gloves are on the table by the Moonflower. Smell the leather.
+  - Id: GH_TAG
+    Riddle: I wear the flower's name on a little stick, but someone scratched me
+      and wrote a new name quick.
+    Tip: Look at the little name tag stuck in the Moonflower's pot. Whose name is
+      on it now?
+  - Id: GH_VISITORS
+    Riddle: Every guest must sign my pages by the door. The last name in me never
+      signed out.
+    Tip: The visitor book on the lectern by the door shows who came last night. Look
+      for who never signed out.
+  - Id: GH_DIARY
+    Riddle: I'm warm and I'm worn and I keep the gardener's hours. Find me by the
+      fire that keeps the flowers.
+    Tip: The gardener's diary is on the ledge beside the boiler. It tells you where
+      Tom was, and what boots he wears.
+  - Id: GH_SLIP
+    Riddle: Dropped by the door, I'm proof that a young man was losing at cards in
+      town at midnight.
+    Tip: There's a folded betting slip on the floor near the door. Check the times
+      stamped on it.
+  CluesRequiredToAccuse: 5
+  MaxAccusations: 3
+  Questions:
+  - Prompt: Who killed Lady Agatha?
+    Options:
+    - Ivy Vale, the rival botanist
+    - Percy Thorne, the nephew
+    - Tom Briar, the gardener
+    - 'No one: her heart failed'
+    CorrectIndex: 0
+  - Prompt: How was she poisoned?
+    Options:
+    - Nicotine soaked into her gloves
+    - Foxglove in her tea
+    - A thorn from the orchid
+    - Fumes from the boiler
+    CorrectIndex: 0
+  - Prompt: Why was she killed?
+    Options:
+    - To steal credit for the Moonflower
+    - To inherit Thornfield
+    - Over being pensioned off
+    - To pay gambling debts
+    CorrectIndex: 0
+  - Prompt: How did the killer leave the locked glasshouse?
+    Options:
+    - Climbed out through the roof vent
+    - With Tom's spare key
+    - Through the boiler tunnel
+    - Hid inside until morning
+    CorrectIndex: 0
+  SolutionText: '<b>Ivy Vale</b> could not bear Agatha''s name on the greatest discovery
+    of the age. She signed in at 9:40, and while Agatha fussed over her orchid, Ivy
+    soaked Agatha''s gardening gloves in <b>nicotine wash</b> from her own family''s
+    nursery.
+
+
+    She never left. She hid among the palms until midnight, when the
+    Moonflower bloomed and Agatha pulled on her gloves to tend it. The poison went
+    through her skin, and her heart stopped in her chair.
+
+
+    Ivy rewrote the orchid''s
+    tag in her own name. Then, with the door locked and the key in Agatha''s pocket,
+    she climbed the ladder, wound the <b>roof vent</b> open and slipped out across
+    the roof, leaving violet pollen on the crank and small muddy prints on the path.
+
+
+    Percy
+    was at the card tables. Tom''s boots would have left prints twice that size.'
+  FailLine: The coroner writes 'heart failure'. Next spring the Royal Society honours
+    Miss Ivy Vale for discovering the Moonflower.
+  TopRankName: Master of the Midnight Bloom
+  WrenCallOut: Psst. Behind the palms, detective.
+  WrenIntro: Wren. Again. Don't make that face. A rare orchid is worth more than
+    silver to the right buyer, and my client wanted this one. Now it's sitting in
+    a crime scene.
+  WrenWhoAmI: Wren. I find valuable things for people who can afford them. My client
+    wanted to buy Lady Agatha's Moonflower, and a dead seller makes for a messy sale.
+    Find me the killer and I'll owe you one.
+  WrenSuspectsLine: Three people wanted something from Lady Agatha. Pick one.
+  Suspects:
+  - Name: Ivy Vale
+    Role: the rival botanist
+    Intel: Runs Vale & Daughters, the nursery across the river. She and Agatha went
+      to war over who discovered the Moonflower. If Agatha's name came off that discovery,
+      Ivy's would go on. She visited last evening and says she left at a quarter
+      past ten.
+  - Name: Percy Thorne
+    Role: the nephew
+    Intel: Agatha's nephew and heir, up to his neck in gambling debts. He inherits
+      Thornfield. But he swears he spent the whole night at the card tables in town,
+      and the club stamps every slip.
+  - Name: Tom Briar
+    Role: the head gardener
+    Intel: Thirty years in Agatha's service, and she meant to pension him off next
+      spring. He broke the lock this morning and found her. Says he was stoking the
+      boiler half the night, then went to bed.
+  DeductionTips:
+  - 'You have it all. Start with alibis: one suspect was at the card tables, and
+    one wears boots far too big for those prints. Who''s left?'
+  - Nicotine goes through skin. She wore gloves to touch her orchid at midnight.
+    Who had the poison, and the chance?
+  - A locked door, the key in her pocket. The footprints end at the ladder, and the
+    midnight pollen is on the vent crank.
+  WrenSolved: Ivy Vale. Of course. My client will be delighted the Moonflower keeps
+    its true name. Goodnight, detective. Don't touch the gloves.
+  FinchCallOut: Oi! Detective! By the boiler, it's the only warm spot in here!
+  FinchIntro: Finch again! I deliver the papers to Thornfield, and I sneak in here
+    to get warm by the boiler. Riddles are free, as always. Wren's tips cost, mine
+    just make you think.
+  FinchWitness: I was dozin' by the boiler. Midnight-ish there was a glow from that
+    flower, purple like a ghost. Then someone went creakin' up the ladder by the
+    north wall, and a pane went squeak, squeak up in the roof. Didn't see who. Small,
+    quick, smelled of flowers and tobacco.
+  FinchSolved: The nursery lady?! That's front-page news! 'Murder Among the Orchids'!
+    I'm off to the printer!

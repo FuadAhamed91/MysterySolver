@@ -1,0 +1,162 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa9506f8b8c580c448622cdfc193780a, type: 3}
+  m_Name: Case2_Lighthouse
+  m_EditorClassIdentifier: Assembly-CSharp::CaseDefinition
+  CaseId: lighthouse
+  Number: 2
+  Title: The Lighthouse at Gull Point
+  Location: "The Lamp Room  \xB7  A Storm at Midnight"
+  SceneName: Lighthouse
+  MenuBlurb: The light went dark in a storm, a ship full of silver struck the rocks,
+    and the keeper lay dead at the foot of the stairs.
+  Intro: 'At 11:52 last night the Gull Point light went dark. Eighteen minutes later
+    the schooner Merrow struck the rocks called the Teeth, her cargo of silver spilling
+    into the surf.
+
+
+    Keeper Silas Marsh was found at the foot of the lamp-room
+    stairs at half past midnight. The harbour board says he fell, rushing to relight
+    the lamp. The storm is still raging. Find out what really happened up here.'
+  Clues:
+  - Id: LH_FUEL_VALVE
+    Riddle: My wheel is small but I hold the light's breath. Turn me shut and the
+      whole sea goes dark. Look low on the lamp's iron leg.
+    Tip: 'The lamp didn''t run out of oil. Look at the fuel valve on the lamp''s
+      pedestal: the little brass wheel facing the room.'
+  - Id: LH_BUTTON
+    Riddle: Anchor and crown, I hang where a man went down. Look on the iron ring
+      that guards the stairs.
+    Tip: Check the railing around the stair hatch. Something from somebody's coat
+      got caught there tonight.
+  - Id: LH_SPYGLASS
+    Riddle: My eye is long and my tube is brass. I stare at the rocks from the ledge
+      by the glass.
+    Tip: There's a spyglass resting on the window ledge, pointed straight at the
+      rocks. See where it's aimed.
+  - Id: LH_MATCHES
+    Riddle: Three little sticks with their heads burned black, dropped by the lamp
+      by someone who came back.
+    Tip: Look on the floor at the base of the great lamp, near the fuel tank. Someone
+      dropped some matches.
+  - Id: LH_WATCH
+    Riddle: My face is cracked and my hands stood still when a body fell down the
+      stairs. Look near the hole in the floor.
+    Tip: There's a pocket watch on the floor near the stair hatch. Read the time
+      it stopped.
+  - Id: LH_LOGBOOK
+    Riddle: I keep the hours of the lamp in blue cloth. The keeper's last words sit
+      on his writing shelf.
+    Tip: Silas's logbook is on his writing shelf by the window. Read the last entry.
+  - Id: LH_MANIFEST
+    Riddle: 'Sealed in red, I list what the sea now keeps: forty silver bars beneath
+      the deeps. I lie on the keeper''s shelf.'
+    Tip: On the writing shelf there's a folded paper with a red seal. It explains
+      why someone wanted that ship on the rocks.
+  - Id: LH_PIPE
+    Riddle: White and thin with a cold little bowl, I wait on the shelf for my owner's
+      return. Was he even here?
+    Tip: The clay pipe on the writing shelf belongs to the assistant keeper. Check
+      whether it was smoked tonight.
+  CluesRequiredToAccuse: 5
+  MaxAccusations: 3
+  Questions:
+  - Prompt: Who killed Silas Marsh?
+    Options:
+    - Jonas Reed, the harbourmaster
+    - Edwin Pike, the assistant
+    - Nell Marsh, his daughter
+    - 'No one: he fell'
+    CorrectIndex: 0
+  - Prompt: Why did the light go out at 11:52?
+    Options:
+    - The fuel valve was shut on purpose
+    - The wick burned out
+    - The storm broke the glass
+    - Silas forgot to fill the tank
+    CorrectIndex: 0
+  - Prompt: Why was it done?
+    Options:
+    - To wreck the Merrow for her silver
+    - To inherit the keeper's cottage
+    - To become head keeper
+    - Revenge for an old debt
+    CorrectIndex: 0
+  - Prompt: When did Silas die?
+    Options:
+    - 11:49, before the light went out
+    - 12:10, when the ship struck
+    - 12:30, when he was found
+    - 11:30, after trimming the wick
+    CorrectIndex: 0
+  SolutionText: 'Harbourmaster <b>Jonas Reed</b> wanted the Merrow on the rocks.
+    A wreck in his waters meant a third of her silver for the harbour board, and
+    a fat cut for himself.
+
+
+    At 11:44 he climbed the tower again and told Silas
+    to let the light fail. Silas refused. They struggled at the stair rail, Reed''s
+    button tore away, and Silas went down the stairs. His watch stopped at <b>11:49</b>.
+
+
+    At
+    11:52 Reed screwed the <b>fuel valve</b> shut and watched through the spyglass
+    until the Merrow struck the Teeth. Then he relit the lamp with matches from the
+    Anchor & Lamp, so everyone would say the light never failed and the keeper simply
+    fell.
+
+
+    Edwin was ringing the fog bell all night, and Nell was on the mainland.'
+  FailLine: Your accusation sinks like the Merrow. Jonas Reed signs the salvage papers
+    at dawn, and the harbour board shares out the silver.
+  TopRankName: Keeper of the Light
+  WrenCallOut: Psst... detective. Over here, out of the wind.
+  WrenIntro: Don't look so surprised, detective. Wherever there's money and a body,
+    you'll find me. Tonight it's forty bars of silver at the bottom of the bay.
+  WrenWhoAmI: Wren. I watch things for people who pay. Tonight I was paid to see
+    the Merrow come in safe. She didn't, so somebody owes my client a great deal
+    of silver. Help me find out who.
+  WrenSuspectsLine: Three people had business with Silas tonight. Pick one.
+  Suspects:
+  - Name: Jonas Reed
+    Role: the harbourmaster
+    Intel: Runs the harbour, and the harbour board's salvage rights. Anything that
+      washes off a wreck in his waters, the board takes a third, and Reed takes his
+      cut. He's been up this tower twice this month, arguing with Silas about the
+      light.
+  - Name: Edwin Pike
+    Role: the assistant keeper
+    Intel: Silas's assistant. Ambitious, and Silas wouldn't recommend him for a light
+      of his own. But tonight was his watch on the fog bell at the foot of the tower.
+      You could hear him ringing it across the bay, every half minute, all night.
+  - Name: Nell Marsh
+    Role: the keeper's daughter
+    Intel: Silas's daughter. They quarrelled because she wants to leave Gull Point
+      for good, and the cottage comes to her now. But she took the evening ferry
+      to the mainland. It left at nine, before the storm closed the harbour.
+  DeductionTips:
+  - 'You''ve got everything. Start with time: the watch, the logbook, and when the
+    light went out. Who died first, the keeper or the light?'
+  - Silas lit his lamp with flint, never matches. So who relit it after the wreck,
+    and why would they want it burning when help arrived?
+  - Follow the button and the silver. Only one name on that list profits from a wreck
+    in his own harbour.
+  WrenSolved: The Merrow's owners will want a word with Jonas Reed. So will I. Nice
+    work, detective. Mind the stairs on your way down.
+  FinchCallOut: Oi! Detective! Over here by the oil barrels, I'm soaked!
+  FinchIntro: Finch! Remember me? I rowed out with the post boat and got stuck when
+    the storm came in. Riddles are still free, detective. Wren charges, I don't.
+  FinchWitness: I was shelterin' in the oil store at the bottom. Around a quarter
+    to twelve a big man in a harbour coat went up the stairs, swearin'. Later I heard
+    a crash out on the rocks, then somebody came down in a hurry, stinkin' of matches.
+  FinchSolved: Reed?! I'll have it in every paper on the coast by breakfast. Mind
+    you don't slip on the way down!

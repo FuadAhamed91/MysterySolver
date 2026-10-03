@@ -6,11 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 5028809294a29c34c8a452ae9f16ace3
+  - enabled: 1
     path: Assets/Scenes/Clocktower.unity
     guid: 1e941c4bbe5c01b469a5c68f7c49384b
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Scenes/Lighthouse.unity
+    guid: d3fd8ecd47a2e4d488f479c55b2bcd53
+  - enabled: 1
+    path: Assets/Scenes/Greenhouse.unity
+    guid: 1ed8faf692ab7c64d8a83269b25fe565
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

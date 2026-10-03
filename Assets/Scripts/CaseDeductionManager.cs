@@ -6,13 +6,14 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Scene singleton that owns the case file for "The 3:15 Escapement": which clues have been found,
-/// the accusation questions, how many accusations remain, and the final verdict screen.
+/// Scene singleton that owns the case file for the current mystery (a <see cref="CaseDefinition"/>): which clues
+/// have been found, the accusation, how many accusations remain, the verdict screen, and saving the result.
 /// </summary>
 public class CaseDeductionManager : MonoBehaviour
 {
     public enum CaseOutcome { Open, Solved, Failed }
 
+    // Clue ids for case 1, "The 3:15 Escapement" (used by the scene builder).
     public const string CLUE_POCKET_WATCH = "CLUE_POCKET_WATCH";
     public const string CLUE_DESK_LAMP = "CLUE_DESK_LAMP";
     public const string CLUE_APOTHECARY_VIAL = "CLUE_APOTHECARY_VIAL";
@@ -23,20 +24,6 @@ public class CaseDeductionManager : MonoBehaviour
     public const string CLUE_CHISEL = "CLUE_CHISEL";
     public const string CLUE_PENDULUM_PIN = "CLUE_PENDULUM_PIN";
 
-    public static readonly string[] AllClues =
-    {
-        CLUE_POCKET_WATCH, CLUE_DESK_LAMP, CLUE_APOTHECARY_VIAL, CLUE_TEACUP, CLUE_PRESCRIPTION,
-        CLUE_LETTER, CLUE_LOGBOOK, CLUE_CHISEL, CLUE_PENDULUM_PIN,
-    };
-
-    [Serializable]
-    public class Question
-    {
-        public string Prompt;
-        public string[] Options;
-        public int CorrectIndex;
-    }
-
     public struct ClueEntry
     {
         public string Id;
@@ -45,6 +32,10 @@ public class CaseDeductionManager : MonoBehaviour
     }
 
     public static CaseDeductionManager Instance { get; private set; }
+
+    [Header("Case")]
+    public CaseDefinition Definition;
+    public CaseCatalog Catalog;
 
     [Header("Player")]
     public FirstPersonController Player;
@@ -57,38 +48,14 @@ public class CaseDeductionManager : MonoBehaviour
     public TMP_Text DeductionBodyText;
     public TMP_Text DeductionHintText;
 
-    [Header("Rules")]
-    [Tooltip("Evidence needed before the Case Board lets the player accuse anyone.")]
-    public int CluesRequiredToAccuse = 5;
-    public int MaxAccusations = 3;
-
-    [Header("Accusation")]
-    public Question[] Questions =
-    {
-        new Question { Prompt = "Who poisoned Arthur Vance?",
-            Options = new[] { "Dr. Elias Haze", "Margaret Vance", "Tobias Crane", "No one: an accident" }, CorrectIndex = 0 },
-        new Question { Prompt = "When did the poison take hold?",
-            Options = new[] { "2:40 AM", "3:03 AM", "3:10 AM", "3:15 AM" }, CorrectIndex = 1 },
-        new Question { Prompt = "How was he killed?",
-            Options = new[] { "Aconite in his tonic", "Crushed by the pendulum", "Gears sabotaged to fall", "Poisoned wax seal" }, CorrectIndex = 0 },
-        new Question { Prompt = "Who stopped the great clock at 3:15?",
-            Options = new[] { "Arthur Vance himself", "Dr. Elias Haze", "Tobias Crane", "Margaret Vance" }, CorrectIndex = 0 },
-    };
-
-    [TextArea(8, 24)]
-    public string SolutionText =
-        "Dr. Elias Haze came up the tower at 2:40 with Vance's evening tonic, and he had altered the dose from 10 drops to 40. " +
-        "The bottle was <b>aconite</b>, labelled in his own hand. They shared tea, then Haze took his cup and fled at 3:10.\n\n" +
-        "At <b>3:03</b> Vance felt his hands go numb and understood. A horologist to the last, he stopped his watch to mark the moment, " +
-        "then turned his lamp onto a note. With minutes left he drew the pendulum's pin himself. The great clock stopped at <b>3:15</b>, " +
-        "waking the whole town before Haze could return to tidy up.\n\n" +
-        "Margaret's threat was only angry words: she was at the gala until 3:30. Crane's chisel marks were months old, and he had left at 11:02.";
-
     public event Action<string, int> ClueDiscovered;
     public event Action<CaseOutcome> CaseClosed;
 
+    public CaseDefinition.Question[] Questions => Definition.Questions;
+    public int CluesRequiredToAccuse => Definition.CluesRequiredToAccuse;
+    public int MaxAccusations => Definition.MaxAccusations;
     public int DiscoveredCount => discovered.Count;
-    public int TotalClues => AllClues.Length;
+    public int TotalClues => Definition.Clues.Length;
     public IReadOnlyList<ClueEntry> Discovered => discovered;
     public int AccusationsLeft => MaxAccusations - accusationsUsed;
     public bool CanAccuse => Outcome == CaseOutcome.Open && discovered.Count >= CluesRequiredToAccuse;
@@ -96,6 +63,7 @@ public class CaseDeductionManager : MonoBehaviour
     /// <summary>Tips bought from the informant. Any tip rules out the top rank.</summary>
     public int HintsUsed { get; private set; }
     public bool VerdictOpen => verdictOpen;
+    public CaseDefinition NextCase => Catalog != null ? Catalog.Next(Definition) : null;
 
     readonly List<ClueEntry> discovered = new List<ClueEntry>();
     int accusationsUsed;
@@ -140,9 +108,9 @@ public class CaseDeductionManager : MonoBehaviour
     /// <summary>Records a clue. Returns true if it was new.</summary>
     public bool RegisterClue(string clueId, string title = null, string note = null)
     {
-        if (Array.IndexOf(AllClues, clueId) < 0)
+        if (Definition.FindClue(clueId) == null)
         {
-            Debug.LogWarning($"Unknown clue id '{clueId}'.", this);
+            Debug.LogWarning($"Clue id '{clueId}' is not part of case '{Definition.CaseId}'.", this);
             return false;
         }
         if (HasClue(clueId))
@@ -187,14 +155,14 @@ public class CaseDeductionManager : MonoBehaviour
         return correct;
     }
 
-    public string Rank()
+    /// <summary>0 = flawless (top rank) ... 3 = scraped through on the last accusation.</summary>
+    public int RankIndex()
     {
-        if (Outcome != CaseOutcome.Solved) return "Case Gone Cold";
-        if (accusationsUsed == 1 && discovered.Count == TotalClues && HintsUsed == 0) return "Master of the Escapement";
-        if (accusationsUsed == 1) return "Chief Inspector";
-        if (accusationsUsed == 2) return "Detective Sergeant";
-        return "Lucky Constable";
+        if (accusationsUsed == 1 && discovered.Count == TotalClues && HintsUsed == 0) return CaseProgress.TopRank;
+        return Mathf.Clamp(accusationsUsed, 1, 3);
     }
+
+    public string Rank() => Outcome == CaseOutcome.Solved ? CaseProgress.RankName(RankIndex(), Definition) : "Case Gone Cold";
 
     void CloseCase(CaseOutcome outcome)
     {
@@ -202,20 +170,26 @@ public class CaseDeductionManager : MonoBehaviour
         string title, body;
         if (outcome == CaseOutcome.Solved)
         {
-            title = "Case Solved: The 3:15 Escapement";
+            CaseProgress.RecordSolved(Definition.CaseId, RankIndex());
+            title = $"Case Solved: {Definition.Title}";
             body = $"<size=120%><color=#FFC774>Rank: {Rank()}</color></size>   " +
                    $"<alpha=#99>Evidence {discovered.Count}/{TotalClues}  ·  Accusations used {accusationsUsed}/{MaxAccusations}  ·  Tips bought {HintsUsed}<alpha=#FF>\n\n" +
-                   SolutionText;
+                   Definition.SolutionText;
         }
         else
         {
             title = "The Case Goes Cold";
-            body = "<color=#FF8A7A>Your last accusation falls apart. By dawn, Dr. Haze is on the 6:15 train to the coast.</color>\n\n" +
-                   "<b>What really happened:</b>\n" + SolutionText;
+            body = $"<color=#FF8A7A>{Definition.FailLine}</color>\n\n<b>What really happened:</b>\n{Definition.SolutionText}";
         }
-        ShowVerdict(title, body, outcome == CaseOutcome.Solved
-            ? "E / Esc: keep exploring    ·    R: play again"
-            : "R: try the case again");
+
+        string hint;
+        if (outcome == CaseOutcome.Solved)
+            hint = NextCase != null
+                ? $"N: next case  ·  M: case menu  ·  E / Esc: keep exploring  ·  R: play again"
+                : "M: case menu  ·  E / Esc: keep exploring  ·  R: play again";
+        else
+            hint = "R: try the case again  ·  M: case menu";
+        ShowVerdict(title, body, hint);
         CaseClosed?.Invoke(outcome);
     }
 
@@ -239,9 +213,20 @@ public class CaseDeductionManager : MonoBehaviour
         if (!verdictOpen || Time.frameCount <= verdictOpenedFrame)
             return;
 
+        var kb = Keyboard.current;
         if (restartAction != null && restartAction.WasPressedThisFrame())
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            return;
+        }
+        if (kb != null && kb.mKey.wasPressedThisFrame)
+        {
+            GoToMenu();
+            return;
+        }
+        if (Outcome == CaseOutcome.Solved && NextCase != null && kb != null && kb.nKey.wasPressedThisFrame)
+        {
+            SceneManager.LoadScene(NextCase.SceneName);
             return;
         }
 
@@ -256,9 +241,15 @@ public class CaseDeductionManager : MonoBehaviour
         if (Player != null) Player.SetInputActive(true);
     }
 
+    public void GoToMenu()
+    {
+        if (Catalog != null && !string.IsNullOrEmpty(Catalog.MenuSceneName))
+            SceneManager.LoadScene(Catalog.MenuSceneName);
+    }
+
     void RefreshTracker()
     {
-        if (TrackerText == null)
+        if (TrackerText == null || Definition == null)
             return;
         string status = Outcome switch
         {
